@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+eval $(minishift oc-env)
+oc login -u system:admin
+# Make sure latest Jenkins image is installed
+oc import-image jenkins:v3.7 --from="registry.access.redhat.com/openshift3/jenkins-2-rhel7" --confirm -n openshift
+oc tag jenkins:v3.7 jenkins:latest -n openshift
+
+# Manage policy on the cluster
+oc adm policy add-role-to-user admin system -n dev 
+oc adm policy add-role-to-user admin system -n stage 
+oc adm policy add-role-to-user admin system -n cicd
+ 
+# Update the annotations on namespace resources    
+oc annotate --overwrite namespace dev demo=openshift-cd 
+oc annotate --overwrite namespace stage demo=openshift-cd
+oc annotate --overwrite namespace cicd  demo=openshift-cd
+
+oc create -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/jboss-image-streams.json -n openshift
