@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+./minishift-start && \
+./minishift-warmup && \
+./minishift-create-projects && \
+./minishift-admin-setup && \
+./minishift-deploy-demo && \
+./minishift-start-pipeline

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+eval $(minishift oc-env)
+oc start-build tasks-pipeline
