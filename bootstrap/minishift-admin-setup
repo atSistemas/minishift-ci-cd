@@ -16,4 +16,4 @@ oc annotate --overwrite namespace dev demo=openshift-cd
 oc annotate --overwrite namespace stage demo=openshift-cd
 oc annotate --overwrite namespace cicd  demo=openshift-cd
 
-oc create -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/jboss-image-streams.json -n openshift
+oc create -f https://raw.githubusercontent.com/jboss-openshift/application-templates/ose-v1.4.10/jboss-image-streams.json -n openshift
