@@ -76,7 +76,14 @@ oc annotate --overwrite namespace cicd  demo=openshift-cd
 
 oc create -f https://raw.githubusercontent.com/jboss-openshift/application-templates/master/jboss-image-streams.json -n openshift
 ```
-This operation will take some time as it will have to start all CI components!!!
+
+* minishift-deploy-demo 
+```
+eval $(minishift oc-env)
+oc login -u developer
+# Download ci-cd template and create app from it
+oc new-app -n cicd -f https://raw.githubusercontent.com/OpenShiftDemos/openshift-cd-demo/ocp-3.7/cicd-template.yaml
+```
 * minishift-start-pipeline
 ```
 eval $(minishift oc-env)

@@ -4,11 +4,11 @@ eval $(minishift oc-env)
 oc login -u developer
 # Create Projects
 echo "Creating DEV namespace ..."
-oc new-project dev --display-name="Tasks - Dev" && \
+oc new-project dev --display-name="Dev Environment" && \
 echo "Creating STAGE namespace ..."
-oc new-project stage --display-name="Tasks - Stage" && \
+oc new-project stage --display-name="Stage environment" && \
 echo "Creating CI/CD namespace ..."
-oc new-project cicd --display-name="CI/CD"
+oc new-project cicd --display-name="CI/CD Management"
 
 # Grant Jenkins Access to Projects
 echo "Adding roles to admin user ..."
