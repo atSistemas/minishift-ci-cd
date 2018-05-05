@@ -20,7 +20,12 @@ Deploy a demo app to showcase a CI/CD pipeline.
 ./minishift-deploy-demo && \
 ./minishift-start-pipeline
 ```
+
 ### Manual step by step
+* Start with clean installation
+```
+minishift delete --clear-cache
+```
 * minishift-start
 ```
 minishift start --memory=10240 --vm-driver=virtualbox && \
