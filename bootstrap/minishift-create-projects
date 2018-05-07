@@ -7,6 +7,8 @@ echo "Creating DEV namespace ..."
 oc new-project dev --display-name="Dev Environment" && \
 echo "Creating STAGE namespace ..."
 oc new-project stage --display-name="Stage environment" && \
+echo "Creating PRO namespace ..."
+oc new-project stage --display-name="PRO environment" && \
 echo "Creating CI/CD namespace ..."
 oc new-project cicd --display-name="CI/CD Management"
 
