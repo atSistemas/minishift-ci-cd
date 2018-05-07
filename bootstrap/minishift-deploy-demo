@@ -3,4 +3,4 @@
 eval $(minishift oc-env)
 oc login -u developer
 # Download ci-cd template and create app from it
-oc new-app -n cicd -f resources/cicd-template.yaml
+oc new-app -n cicd -f ../resources/cicd-template.yaml
