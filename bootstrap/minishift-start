@@ -1,4 +1,17 @@
-#!/usr/bin/env bash
-
-minishift start --memory=10240 --vm-driver=virtualbox && \
+minishift start --memory=10240 --iso-url=centos --vm-driver=virtualbox && \
+minishift ssh -- "sudo cat <<EOF > /tmp/networking-eth0
+DEVICE=eth0
+USEDHCP=y
+EOF" && \
+minishift ssh -- "sudo cat <<EOF > /tmp/networking-eth1
+DEVICE=eth1
+IPADDR=$(minishift ip)
+NETMASK=24
+GATEWAY=192.168.99.1
+DNS1=8.8.8.8
+DNS2=8.8.4.4
+EOF" && \
+minishift ssh -- "sudo mv /tmp/networking-eth* /var/lib/minishift/" && \
+minishift stop && \
+minishift start --vm-driver=virtualbox && \
 minishift oc-env
