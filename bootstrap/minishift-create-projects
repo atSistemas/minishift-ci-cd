@@ -16,3 +16,4 @@ oc new-project cicd --display-name="CI/CD Management"
 echo "Adding roles to admin user ..."
 oc policy add-role-to-user edit system:serviceaccount:cicd:jenkins -n dev
 oc policy add-role-to-user edit system:serviceaccount:cicd:jenkins -n stage
+oc policy add-role-to-user edit system:serviceaccount:cicd:jenkins -n pro
