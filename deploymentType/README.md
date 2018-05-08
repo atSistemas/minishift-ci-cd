@@ -17,8 +17,6 @@ Deploying different deployment type - Minishift
 ./minishift-start-pipeline
 ```
 
-### minishift-start
-
 * minishift-start
 ```
 minishift start --vm-driver=virtualbox && \
