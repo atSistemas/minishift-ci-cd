@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
 minishift start --memory=10240 --vm-driver=virtualbox && \
+#minishift start --memory=10240 --vm-driver=kvm && \
+
 minishift oc-env
