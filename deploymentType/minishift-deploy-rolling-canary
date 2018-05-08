@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+eval $(minishift oc-env)
+oc login -u developer
+
+echo "Creating new application..."
+oc new-app openshift/deployment-example && \
+echo "Expose the service..."
+oc expose svc/deployment-example && \
+echo "Scaling to 3 replicas ..."
+oc scale dc/deployment-example --replicas=3 && \
+echo "Trigger a new deployment by tagging a newer version..."
+oc tag --source=docker openshift/deployment-example:v2 deployment-example:latest
+echo "Deploying deployment-example"
+oc deploy deployment-example

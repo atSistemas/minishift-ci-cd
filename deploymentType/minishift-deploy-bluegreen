@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+eval $(minishift oc-env)
+oc login -u developer
+echo "Create new app to old version bluegreen...."
+oc new-app openshift/deployment-example:v1 --name=bluegreen-example-old
+echo "Create new app to new version bluegreen...."
+oc new-app openshift/deployment-example:v2 --name=bluegreen-example-new
+echo "Expose service bluegreen old versions"
+oc expose svc/bluegreen-example-old --name=bluegreen-example

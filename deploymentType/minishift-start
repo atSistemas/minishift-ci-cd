@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+minishift start --vm-driver=virtualbox && \
+minishift oc-env
