@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: Template
+labels:
+    template: blue-green-deployment-example
+message: Example blue-green how strategies deployment by use the deployment-example
+metadata:
+    anotations:
+        description: This example showcases a blue green deployment using deployment-example
+        tags: blue-green, deployment-example
+    name: blue-green-deployment-example
+objects:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: example-blue
+  spec:
+    ports:
+    - port: 8080
+      targetPort: 8080
+    selector:
+        deploymentconfig: example-blue
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: example-blue
+  spec:
+    replicas: 2
+    selector: 
+        deploymentconfig: example-blue
+    strategy:
+      type: Rolling    
+    template:
+      metadata:
+        labels:
+          deploymentconfig: example-blue
+      spec:
+        containers:
+        - image: openshift/deployment-example:v1
+          name: deployment-example
+          ports:
+          - containerPort: 8080
+            protocol: TCP    
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - deployment-example
+        from:
+          kind: ImageStreamTag
+          name: blue-green-deployment-example:blue
+      type: ImageChange    
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: example-green
+  spec:
+    ports:
+    - port: 8080
+      targetPort: 8080
+    selector:
+        deploymentconfig: example-green
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: example-green
+  spec:
+    replicas: 2
+    selector: 
+        deploymentconfig: example-green
+    strategy:
+      type: Rolling    
+    template:
+      metadata:
+        labels:
+          deploymentconfig: example-green
+      spec:
+        containers:
+        - image: openshift/deployment-example:v1
+          name: deployment-example
+          ports:
+          - containerPort: 8080
+            protocol: TCP    
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - deployment-example
+        from:
+          kind: ImageStreamTag
+          name: blue-green-deployment-example:green
+      type: ImageChange        
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: blue-dexample
+  spec:
+    to:
+      kind: Service
+      name: example-blue
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: green-dexample
+  spec:
+    to:
+      kind: Service
+      name: example-green
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: dexample
+  spec:
+    alternateBackends:
+    - name: example-green  
+      weight: 0
+    to:
+      kind: Service
+      name: example-blue
+      weight: 100
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: blue-green-deployment-example
+  spec:
+    dockerImageRepository: openshift/deployment-example
