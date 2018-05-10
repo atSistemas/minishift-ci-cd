@@ -10,6 +10,64 @@ metadata:
     name: blue-green-deployment-example
 objects:
 - apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      pipeline.alpha.openshift.io/uses: '[{"name": "example", "namespace": "", "kind": "DeploymentConfig"}]'
+    creationTimestamp: null
+    labels:
+      name: blue-green-deployment-example
+    name: blue-green-deployment-example
+  spec:
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfile: |-
+          try {
+             timeout(time: 20, unit: 'MINUTES') {
+                def appName="dexample"
+                def service="example"
+                def project=""
+                def tag="blue"
+                def altTag="green"
+                def verbose="flase"
+        
+                node {
+                  project = env.PROJECT_NAME
+                  stage("Initialize") {
+                    sh "oc get route ${appName} -n ${project} -o jsonpath='{ .spec.to.name }' --loglevel=4 > activeservice"
+                    activeService = readFile('activeservice').trim()
+                    if (activeService == "${service}-blue") {
+                      tag = "green"
+                      altTag = "blue"
+                    }
+                    sh "oc get route ${tag}-${appName} -n ${project} -o jsonpath='{ .spec.host }' --loglevel=4 > routehost"
+                    routeHost = readFile('routehost').trim()
+                  }
+        
+                  stage("Build") {
+                    echo "building tag ${tag}"
+                    openshiftTag srcStream: 'blue-green-deployment-example', srcTag: 'latest', destinationStream: 'blue-green-deployment-example', destinationTag: tag, verbose: verbose
+                    openshiftVerifyDeployment deploymentConfig: "${service}-${tag}", verbose: verbose
+                  }
+        
+                        
+                  stage("Test") {
+                    input message: "Test deployment: http://${routeHost}. Approve?", id: "approval"
+                  }
+        
+                  stage("Go Live") {
+                    sh "oc set -n ${project} route-backends ${appName} ${service}-${tag}=100 ${service}-${altTag}=0 --loglevel=4"
+                  }
+                }
+             }
+          } catch (err) {
+             echo "in catch block"
+             echo "Caught: ${err}"
+             currentBuild.result = 'FAILURE'
+             throw err
+          }          
+      type: JenkinsPipeline
+- apiVersion: v1
   kind: Service
   metadata:
     name: example-blue
@@ -28,7 +86,7 @@ objects:
     selector: 
         deploymentconfig: example-blue
     strategy:
-      type: Rolling    
+      type: Rolling      
     template:
       metadata:
         labels:
@@ -39,7 +97,16 @@ objects:
           name: deployment-example
           ports:
           - containerPort: 8080
-            protocol: TCP    
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1           
     triggers:
     - type: ConfigChange
     - imageChangeParams:
@@ -69,7 +136,8 @@ objects:
     selector: 
         deploymentconfig: example-green
     strategy:
-      type: Rolling    
+      type: Recreate  
+          
     template:
       metadata:
         labels:
@@ -80,7 +148,16 @@ objects:
           name: deployment-example
           ports:
           - containerPort: 8080
-            protocol: TCP    
+            protocol: TCP  
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1             
     triggers:
     - type: ConfigChange
     - imageChangeParams:

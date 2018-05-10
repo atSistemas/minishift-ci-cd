@@ -61,3 +61,47 @@ oc login -u developer
 oc edit route/bluegreen-example
 ```
 Change spec.to.name to bluegreen-example-new and save and exit the editor.
+
+## Create project minishift within ci platform to execute different deployment strategies
+
+### All-in bootstrapDeployment
+```
+./minishift-start && \
+./minishift-create-project && \
+./minishift-create-app && \
+./minishift-start-pipeline
+```
+
+### Manual step by step 
+* Start with clean installation
+```
+minishift delete --clear-cache
+```
+* minishift-start
+```
+minishift start --memory=10240 --vm-driver=virtualbox && \
+minishift oc-env
+```
+This will create a new project 
+* minishift-create-project 
+```
+eval $(minishift oc-env)
+oc login -u developer
+oc new-project testbluegreen --display-name="test blue green"
+```
+This operation will create a new app from yaml templates
+* minishift-create-app
+eval $(minishift oc-env)
+oc login -u developer
+oc new-app -n testbluegreen -f ../templates/bluegreen-example.yaml
+```
+This operation will label the last version of the image used, 
+then the implementation of the deployment element will be triggered to later balance the routing element to the service where the latest version was deployed.
+* minishift-start-pipeline
+eval $(minishift oc-env)
+oc login -u developer
+oc tag blue-green-deployment-example:v1 blue-green-deployment-example:latest
+oc start-build blue-green-deployment-example
+```
+If we want to re-launch the pipeline we generate a new version image tag and execute the pipeline. We consult results now
+
