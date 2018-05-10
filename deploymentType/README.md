@@ -91,6 +91,7 @@ oc new-project testbluegreen --display-name="test blue green"
 ```
 This operation will create a new app from yaml templates
 * minishift-create-app
+```
 eval $(minishift oc-env)
 oc login -u developer
 oc new-app -n testbluegreen -f ../templates/bluegreen-example.yaml
@@ -98,6 +99,7 @@ oc new-app -n testbluegreen -f ../templates/bluegreen-example.yaml
 This operation will label the last version of the image used, 
 then the implementation of the deployment element will be triggered to later balance the routing element to the service where the latest version was deployed.
 * minishift-start-pipeline
+```
 eval $(minishift oc-env)
 oc login -u developer
 oc tag blue-green-deployment-example:v1 blue-green-deployment-example:latest
